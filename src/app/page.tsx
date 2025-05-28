@@ -2,6 +2,7 @@
 
 import { useUser } from '@supabase/auth-helpers-react';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation'; // Import useRouter for redirection
 import ChatSidebar from "../../Components/ChatSidebar";
 import ChatWindow from "../../Components/ChatWindow";
 import Iconsbar from "../../Modules/Iconsbar";
@@ -13,10 +14,16 @@ export default function Home() {
   const currentUser = useUser();
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const router = useRouter(); // Initialize the router
 
   useEffect(() => {
-    if (!currentUser) return;
+    if (currentUser === null) {
+      // If currentUser is null (unauthenticated), redirect to /login
+      router.push('/login');
+      return;
+    }
 
+    // Proceed with fetching users if authenticated
     const init = async () => {
       const res = await fetch('/api/users/fetch');
       const fetched = await res.json();
@@ -24,7 +31,7 @@ export default function Home() {
     };
 
     init();
-  }, [currentUser]);
+  }, [currentUser, router]);
 
   if (!currentUser) {
     return (
