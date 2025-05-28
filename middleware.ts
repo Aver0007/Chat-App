@@ -1,27 +1,21 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
 
-const AUTH_COOKIE_NAME = 'sb-access-token'
+export async function middleware(req: NextRequest) {
+  const res = NextResponse.next();
+  const supabase = createMiddlewareClient({ req, res });
 
-export function middleware(req: NextRequest) {
-  const token = req.cookies.get(AUTH_COOKIE_NAME)?.value
-  const { pathname } = req.nextUrl
+  const { data: { user } } = await supabase.auth.getUser();
 
-  if (pathname === '/' && !token) {
-    const loginUrl = req.nextUrl.clone()
-    loginUrl.pathname = '/login'
-    return NextResponse.redirect(loginUrl)
+  // If there's no user and the request is for the root route, redirect to /login
+  if (!user && req.nextUrl.pathname === '/') {
+    return NextResponse.redirect(new URL('/login', req.url));
   }
 
-  if (pathname === '/login' && token) {
-    const homeUrl = req.nextUrl.clone()
-    homeUrl.pathname = '/'
-    return NextResponse.redirect(homeUrl)
-  }
-
-  return NextResponse.next()
+  return res;
 }
 
 export const config = {
-  matcher: ['/', '/login'],
-}
+  matcher: ['/'], // Apply middleware only to the root route
+};
