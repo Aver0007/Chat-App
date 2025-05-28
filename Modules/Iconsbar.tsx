@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { AiFillHome } from 'react-icons/ai';
@@ -11,10 +13,26 @@ import { RiFolderImageFill, RiSettings5Fill } from 'react-icons/ri';
 import { MdChecklist } from 'react-icons/md';
 import { TbStarsFilled } from "react-icons/tb";
 import { ImExit } from "react-icons/im";
+import { supabase } from '../lib/supabase';
+import { useRouter } from 'next/navigation';
 
 const iconClass = "text-gray-500 hover:text-black cursor-pointer";
 
+
+
 const Iconsbar: React.FC = () => {
+
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Logout failed:', error.message);
+    } else {
+      router.push('/login'); // redirect to login after logout
+    }
+  };
+
   return (
     <div className="h-screen w-12 bg-white flex flex-col justify-between items-center py-2">
       
@@ -46,8 +64,14 @@ const Iconsbar: React.FC = () => {
       {/* Bottom two icons */}
       <div className="flex flex-col items-center gap-4">
         <TbStarsFilled size={22} className={iconClass} />
-        <ImExit size={22} className={iconClass} />
-      </div>
+        <button className='flex flex-col items-center' onClick={handleLogout}>
+          <ImExit
+            size={22}
+            className="text-gray-600 text-sm hover:text-black cursor-pointer"
+            title="Logout"
+           />
+      </button>
+      </div>     
       
     </div>
   );
