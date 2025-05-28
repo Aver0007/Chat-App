@@ -2,9 +2,20 @@ import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
+interface User {
+  uid: string;
+  name: string;
+  image: string;
+  phone: string;
+  email: string;
+  tag: string;
+}
+
 export async function GET() {
   const supabase = createServerComponentClient({ cookies });
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -21,11 +32,10 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // Map Supabase user data to the User type
-  const mappedUsers = data.map((user: any) => ({
-    uid: user.id, // Map id to uid
+  const mappedUsers: User[] = data.map((user) => ({
+    uid: user.id,
     name: user.name,
-    image: user.avatar_url, // Map avatar_url to image
+    image: user.avatar_url,
     phone: user.phone,
     email: user.email,
     tag: user.tag,

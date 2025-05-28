@@ -16,13 +16,23 @@ export default function LoginPage() {
         <p className="text-sm mt-4 text-center">
           {authType === 'login' ? (
             <>
-              Don't have an account?{' '}
-              <button onClick={() => setAuthType('signup')} className="text-blue-600 underline  hover:text-black cursor-pointer">Sign Up</button>
+              {"Don't have an account? "}
+              <button
+                onClick={() => setAuthType('signup')}
+                className="text-blue-600 underline hover:text-black cursor-pointer"
+              >
+                Sign Up
+              </button>
             </>
           ) : (
             <>
-              Already have an account?{' '}
-              <button onClick={() => setAuthType('login')} className="text-blue-600 underline  hover:text-black cursor-pointer">Login</button>
+              {"Already have an account? "}
+              <button
+                onClick={() => setAuthType('login')}
+                className="text-blue-600 underline hover:text-black cursor-pointer"
+              >
+                Login
+              </button>
             </>
           )}
         </p>

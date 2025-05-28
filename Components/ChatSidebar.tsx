@@ -7,6 +7,15 @@ import { User, Message } from '../types';
 import Chat from './Chat';
 import { TbMessageCirclePlus } from 'react-icons/tb';
 
+// Define the raw structure of a chat message from Supabase
+type ChatMessage = {
+  id: string;
+  sender_id: string;
+  receiver_id: string;
+  message: string;
+  sent_at: string;
+};
+
 type Props = {
   data: User[];
   onSelectUser: (user: User) => void;
@@ -60,7 +69,7 @@ const ChatSidebar: React.FC<Props> = ({ data, onSelectUser }) => {
 
       // Get the list of users the current user has chatted with
       const userIds = new Set<string>();
-      messages.forEach((msg: any) => {
+      messages.forEach((msg: ChatMessage) => { // Fix: Type msg as ChatMessage
         if (msg.sender_id === currentUserId) {
           userIds.add(msg.receiver_id);
         } else if (msg.receiver_id === currentUserId) {
@@ -128,7 +137,7 @@ const ChatSidebar: React.FC<Props> = ({ data, onSelectUser }) => {
           filter: `sender_id=eq.${currentUserId}`,
         },
         (payload) => {
-          const newMessage = payload.new as any;
+          const newMessage = payload.new as ChatMessage; // Fix: Type payload.new as ChatMessage
           handleNewMessage(newMessage);
         }
       )
@@ -141,13 +150,13 @@ const ChatSidebar: React.FC<Props> = ({ data, onSelectUser }) => {
           filter: `receiver_id=eq.${currentUserId}`,
         },
         (payload) => {
-          const newMessage = payload.new as any;
+          const newMessage = payload.new as ChatMessage; // Fix: Type payload.new as ChatMessage
           handleNewMessage(newMessage);
         }
       )
       .subscribe();
 
-    const handleNewMessage = (message: any) => {
+    const handleNewMessage = (message: ChatMessage) => { // Fix: Type message as ChatMessage
       const otherUserId = message.sender_id === currentUserId ? message.receiver_id : message.sender_id;
       const userExists = data.find(user => user.uid === otherUserId);
 
@@ -260,7 +269,7 @@ const ChatSidebar: React.FC<Props> = ({ data, onSelectUser }) => {
         uid: existingUser.id,
         name: updatedUser.name,
         image: updatedUser.avatar_url || '',
-        phone: updatedUser.phone || null, // Ensure phone can be null
+        phone: updatedUser.phone || null,
         email: updatedUser.email,
         tag: updatedUser.tag,
       };
@@ -268,7 +277,7 @@ const ChatSidebar: React.FC<Props> = ({ data, onSelectUser }) => {
       // Add the new user to the users table
       const newUser = {
         name: newUserName,
-        phone: newUserPhone || null, // Set to null if not provided
+        phone: newUserPhone || null,
         email: newUserEmail || null,
         tag: newUserTag || 'Personal',
         avatar_url: null,
@@ -290,7 +299,7 @@ const ChatSidebar: React.FC<Props> = ({ data, onSelectUser }) => {
         uid: newUserData.id,
         name: newUserData.name,
         image: newUserData.avatar_url || '',
-        phone: newUserData.phone || null, // Ensure phone can be null
+        phone: newUserData.phone || null,
         email: newUserData.email,
         tag: newUserData.tag,
       };

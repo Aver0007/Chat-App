@@ -18,6 +18,15 @@ import { PiNoteFill } from "react-icons/pi";
 import { FaMicrophone } from "react-icons/fa";
 import { RiExpandUpDownLine } from "react-icons/ri";
 
+// Define the raw structure of a chat message from Supabase
+type ChatMessage = {
+  id: string;
+  sender_id: string;
+  receiver_id: string;
+  message: string;
+  sent_at: string;
+};
+
 type Props = {
   user: User | null;
   currentUser: SupaUser;
@@ -48,7 +57,7 @@ const ChatWindow: React.FC<Props> = ({ user, currentUser }) => {
         .order('sent_at', { ascending: true });
 
       if (!error && data) {
-        const mappedMessages = data.map((msg: any) => ({
+        const mappedMessages = (data as ChatMessage[]).map((msg) => ({ // Fix: Explicitly type data as ChatMessage[]
           id: msg.id,
           sender_id: msg.sender_id,
           receiver_id: msg.receiver_id,
@@ -73,7 +82,7 @@ const ChatWindow: React.FC<Props> = ({ user, currentUser }) => {
           table: 'chats',
         },
         (payload) => {
-          const message = payload.new as any;
+          const message = payload.new as ChatMessage; // Fix: Already typed as ChatMessage
           if (
             (message.sender_id === currentUser.id && message.receiver_id === user.uid) ||
             (message.sender_id === user.uid && message.receiver_id === currentUser.id)
