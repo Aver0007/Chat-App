@@ -1,5 +1,4 @@
 'use client';
-
 import React, { useEffect, useRef, useState } from 'react';
 import { User as SupaUser } from '@supabase/auth-helpers-nextjs';
 import Image from 'next/image';
@@ -17,8 +16,9 @@ import { HiOutlineSparkles } from "react-icons/hi";
 import { PiNoteFill } from "react-icons/pi";
 import { FaMicrophone } from "react-icons/fa";
 import { RiExpandUpDownLine } from "react-icons/ri";
+import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
 
-// Define the raw structure of a chat message from Supabase
+
 type ChatMessage = {
   id: string;
   sender_id: string;
@@ -36,14 +36,37 @@ const ChatWindow: React.FC<Props> = ({ user, currentUser }) => {
   const supabase = createClientComponentClient();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const emojiPickerRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null); // Ref for the input field
 
-  // Scroll to bottom on new messages
+  //Scroll to bottom on new messages
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Fetch messages and setup real-time listener
+  //Close emoji picker when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        emojiPickerRef.current &&
+        !emojiPickerRef.current.contains(event.target as Node)
+      ) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    if (showEmojiPicker) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showEmojiPicker]);
+
+  //Fetch messages and setup real-time listener
   useEffect(() => {
     if (!user || !user.uid || !currentUser?.id) return;
 
@@ -57,7 +80,7 @@ const ChatWindow: React.FC<Props> = ({ user, currentUser }) => {
         .order('sent_at', { ascending: true });
 
       if (!error && data) {
-        const mappedMessages = (data as ChatMessage[]).map((msg) => ({ // Fix: Explicitly type data as ChatMessage[]
+        const mappedMessages = (data as ChatMessage[]).map((msg) => ({
           id: msg.id,
           sender_id: msg.sender_id,
           receiver_id: msg.receiver_id,
@@ -82,7 +105,7 @@ const ChatWindow: React.FC<Props> = ({ user, currentUser }) => {
           table: 'chats',
         },
         (payload) => {
-          const message = payload.new as ChatMessage; // Fix: Already typed as ChatMessage
+          const message = payload.new as ChatMessage;
           if (
             (message.sender_id === currentUser.id && message.receiver_id === user.uid) ||
             (message.sender_id === user.uid && message.receiver_id === currentUser.id)
@@ -105,7 +128,7 @@ const ChatWindow: React.FC<Props> = ({ user, currentUser }) => {
     };
   }, [user, currentUser?.id, supabase]);
 
-  // Send message
+  //Send message
   const handleSend = async () => {
     if (!newMessage.trim() || !user || !user.uid || !currentUser?.id) return;
 
@@ -113,20 +136,41 @@ const ChatWindow: React.FC<Props> = ({ user, currentUser }) => {
       sender_id: currentUser.id,
       receiver_id: user.uid,
       message: newMessage.trim(),
-      sent_at: new Date().toISOString(), // Added sent_at
+      sent_at: new Date().toISOString(),
     };
 
-    console.log("📦 Payload:", payload);
+    console.log("Payload:", payload);
 
     const { error, data } = await supabase.from("chats").insert(payload).select();
 
     if (error) {
-      console.error("❌ Message send failed:", error.message, error.details);
-      alert(`❌ Message send failed: ${error.message || JSON.stringify(error)}`);
+      console.error("Message send failed:", error.message, error.details);
+      alert(`Message send failed: ${error.message || JSON.stringify(error)}`);
     } else {
-      console.log("✅ Message sent:", data);
+      console.log("Message sent:", data);
       setNewMessage('');
     }
+  };
+
+  //Handle emoji selection
+  const handleEmojiClick = (emojiData: EmojiClickData) => {
+    const input = inputRef.current;
+    if (!input) return;
+
+    const cursorPosition = input.selectionStart ?? newMessage.length;
+    const newText =
+      newMessage.slice(0, cursorPosition) +
+      emojiData.emoji +
+      newMessage.slice(cursorPosition);
+
+    setNewMessage(newText);
+
+    //Restore cursor position after the emoji
+    setTimeout(() => {
+      input.focus();
+      input.selectionStart = cursorPosition + emojiData.emoji.length;
+      input.selectionEnd = cursorPosition + emojiData.emoji.length;
+    }, 0);
   };
 
   if (!user) {
@@ -141,7 +185,6 @@ const ChatWindow: React.FC<Props> = ({ user, currentUser }) => {
     <div className="flex flex-col h-full w-full">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2 bg-gray-50">
-        {/* Left section: user avatar + name */}
         <div className="flex items-center gap-3">
           {user.image ? (
             <Image src={user.image} alt="avatar" width={32} height={32} className="rounded-full" />
@@ -153,8 +196,6 @@ const ChatWindow: React.FC<Props> = ({ user, currentUser }) => {
             <p className="text-xs text-gray-500">{user.tag}</p>
           </div>
         </div>
-      
-        {/* Right section: icons */}
         <div className="flex items-center gap-1.5 pr-3">
           <HiSparkles className="text-black" />
           <CiSearch size={20} className="text-black" />
@@ -175,7 +216,7 @@ const ChatWindow: React.FC<Props> = ({ user, currentUser }) => {
           {messages.map(msg => (
             <div
               key={msg.id}
-              className={`px-4 py-2 rounded-md max-w-xs text-sm ${
+              className={`px-4 py-2 rounded-md max-w-xs text-sm break-words whitespace-pre-wrap ${
                 msg.sender_id === currentUser.id
                   ? 'bg-green-100 self-end text-right'
                   : 'bg-white self-start text-left'
@@ -195,7 +236,7 @@ const ChatWindow: React.FC<Props> = ({ user, currentUser }) => {
       </div>
 
       {/* Input */}
-      <div className="px-1 py-2 bg-gray-50">
+      <div className="px-1 py-2 bg-gray-50 relative">
         <div>
           <form
             onSubmit={e => {
@@ -205,6 +246,7 @@ const ChatWindow: React.FC<Props> = ({ user, currentUser }) => {
             className="flex gap-2"
           >
             <input
+              ref={inputRef} 
               type="text"
               placeholder="Message..."
               value={newMessage}
@@ -223,7 +265,22 @@ const ChatWindow: React.FC<Props> = ({ user, currentUser }) => {
         <div className='flex flex-row justify-between pt-2'>
           <div className='py-2 flex flex-row items-center pl-4 gap-6 text-gray-700'>
             <GrAttachment size={18}/> 
-            <VscSmiley size={18}/>
+            <div className="relative">
+              <VscSmiley
+                size={18}
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                className="cursor-pointer"
+                aria-label="Open emoji picker"
+              />
+              {showEmojiPicker && (
+                <div
+                  ref={emojiPickerRef}
+                  className="absolute bottom-12 left-0 z-10"
+                >
+                  <EmojiPicker onEmojiClick={handleEmojiClick} />
+                </div>
+              )}
+            </div>
             <LuClock4 size={18}/>
             <PiClockClockwiseBold size={18}/>
             <HiOutlineSparkles size={18}/>

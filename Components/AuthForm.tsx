@@ -1,5 +1,4 @@
 'use client';
-
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabase';
@@ -22,7 +21,7 @@ export default function AuthForm({ authType }: Props) {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) return setError(error.message);
 
-      // Call /api/users/insertcurrent to ensure the user is in the users table
+    
       const response = await fetch('/api/users/insertcurrent', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
@@ -34,12 +33,14 @@ export default function AuthForm({ authType }: Props) {
         return;
       }
 
-      router.push('/'); // Redirect to home page after login (as per original behavior)
-    } else {
+      router.push('/'); 
+    } 
+
+    else 
+    {
       const { error, data: { session } } = await supabase.auth.signUp({ email, password });
       if (error) return setError(error.message);
 
-      // If session exists, user is logged in (email confirmation not required)
       if (session) {
         const response = await fetch('/api/users/insertcurrent', {
           method: 'GET',
@@ -54,7 +55,7 @@ export default function AuthForm({ authType }: Props) {
       }
 
       alert('Signup successful. Please login.');
-      router.push('/login'); // Redirect to login page after signup (as per original behavior)
+      router.push('/login'); 
     }
   };
 

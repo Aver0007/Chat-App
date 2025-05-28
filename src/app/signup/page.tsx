@@ -1,5 +1,4 @@
 'use client';
-
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../../lib/supabase';
@@ -24,7 +23,6 @@ export default function SignupPage() {
       return;
     }
 
-    // If session exists, user is logged in (email confirmation not required)
     if (session) {
       const response = await fetch('/api/users/insertcurrent', {
         method: 'GET',
@@ -38,7 +36,7 @@ export default function SignupPage() {
       }
     }
 
-    router.push('/login'); // Redirect to login page after signup (as per original behavior)
+    router.push('/login'); 
   };
 
   return (

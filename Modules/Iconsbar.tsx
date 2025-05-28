@@ -1,5 +1,4 @@
 'use client';
-
 import React from 'react';
 import Image from 'next/image';
 import { AiFillHome } from 'react-icons/ai';
@@ -29,14 +28,14 @@ const Iconsbar: React.FC = () => {
     if (error) {
       console.error('Logout failed:', error.message);
     } else {
-      router.push('/login'); // redirect to login after logout
+      router.push('/login'); 
     }
   };
 
   return (
     <div className="h-screen w-12 bg-white flex flex-col justify-between items-center py-2">
       
-      {/* Top and middle icons */}
+
       <div className="flex flex-col items-center gap-3">
         <Image
           src="/Periskope.png"
@@ -61,7 +60,7 @@ const Iconsbar: React.FC = () => {
         <RiSettings5Fill size={22} className={iconClass} />
       </div>
 
-      {/* Bottom two icons */}
+
       <div className="flex flex-col items-center gap-4">
         <TbStarsFilled size={22} className={iconClass} />
         <button className='flex flex-col items-center' onClick={handleLogout}>

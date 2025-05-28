@@ -12,13 +12,12 @@ const TopBar: React.FC = () => {
   return (
     <div className="flex items-center justify-between border-gray-300 px-4 py-2 bg-white w-full z-50 relative">
       
-      {/* LEFT: Chats */}
       <div className="flex items-center gap-2 hover:text-black cursor-pointer">
         <IoChatbubbleEllipses className="text-gray-500" size={16} />
-        <p className="text-gray-500 font-sans text-sm font-bold">Chats</p>
+        <p className="text-gray-500 font-sans text-sm font-bold">chats</p>
       </div>
 
-      {/* RIGHT: Grouped Buttons (aligned to far right) */}
+
       <div className="flex items-center space-x-1">
 
         <div className="flex items-center gap-1.5 border border-gray-300 rounded px-2 py-1 hover:text-black cursor-pointer">

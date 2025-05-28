@@ -7,7 +7,6 @@ const Search: React.FC = () => {
   return (
     <div className="flex items-center justify-between px-2 py-1 border-b border-gray-200 bg-gray-100 h-12 w-full">
 
-      {/* Left: Custom Filter */}
       <div className="flex items-center gap-2">
         <RiFolderDownloadFill className="text-green-600" size={18} />
         <span className="text-green-600 font-semibold text-sm">Custom filter</span>
@@ -16,7 +15,7 @@ const Search: React.FC = () => {
         </button>
       </div>
 
-      {/* Right Side: Search + Filter */}
+  
       <div className="flex items-center gap-2">
         {/* Search bar */}
         <div className="flex items-center bg-white px-1 py-1 rounded-md border border-gray-300">
@@ -28,7 +27,7 @@ const Search: React.FC = () => {
           />
         </div>
 
-        {/* Filtered badge */}
+  
         <div className="flex items-center bg-white px-3 py-1 rounded-md border border-gray-300 text-green-600 text-sm font-medium ">
           <IoFilter size={16} className="mr-1" />
           Filter

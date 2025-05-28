@@ -1,5 +1,4 @@
 'use client';
-
 import React, { useEffect, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Search from '../Modules/Search';
@@ -7,7 +6,7 @@ import { User, Message } from '../types';
 import Chat from './Chat';
 import { TbMessageCirclePlus } from 'react-icons/tb';
 
-// Define the raw structure of a chat message from Supabase
+
 type ChatMessage = {
   id: string;
   sender_id: string;
@@ -36,7 +35,7 @@ const ChatSidebar: React.FC<Props> = ({ data, onSelectUser }) => {
   const [newUserEmail, setNewUserEmail] = useState('');
   const [newUserTag, setNewUserTag] = useState('');
 
-  // Step 1: Get the current user’s ID
+  //Get current user ID
   useEffect(() => {
     const getUser = async () => {
       const { data: { user }, error } = await supabase.auth.getUser();
@@ -51,12 +50,12 @@ const ChatSidebar: React.FC<Props> = ({ data, onSelectUser }) => {
     getUser();
   }, [supabase]);
 
-  // Step 2: Load chats for the current user
+  //Load chats for the current user
   useEffect(() => {
     if (!currentUserId || data.length === 0) return;
 
     const loadChats = async () => {
-      // Find all users the current user has chatted with
+      //Find all users the current user has chatted with
       const { data: messages, error } = await supabase
         .from('chats')
         .select('*')
@@ -67,9 +66,9 @@ const ChatSidebar: React.FC<Props> = ({ data, onSelectUser }) => {
         return;
       }
 
-      // Get the list of users the current user has chatted with
+      //Get the list of users the current user has chatted with
       const userIds = new Set<string>();
-      messages.forEach((msg: ChatMessage) => { // Fix: Type msg as ChatMessage
+      messages.forEach((msg: ChatMessage) => { 
         if (msg.sender_id === currentUserId) {
           userIds.add(msg.receiver_id);
         } else if (msg.receiver_id === currentUserId) {
@@ -77,10 +76,10 @@ const ChatSidebar: React.FC<Props> = ({ data, onSelectUser }) => {
         }
       });
 
-      // Filter the data to only show users with conversations
+      //Filter the data to only show users with conversations
       const usersToShow = data.filter(user => userIds.has(user.uid));
 
-      // For each user, get their latest message
+      //For each user, get their latest message
       const updatedChatList: UserWithMessage[] = [];
       for (const user of usersToShow) {
         const { data: latestMessage, error: msgError } = await supabase
@@ -112,7 +111,7 @@ const ChatSidebar: React.FC<Props> = ({ data, onSelectUser }) => {
         }
       }
 
-      // Sort chats by the latest message
+      //Sort chats by the latest message
       updatedChatList.sort((a, b) => {
         if (!a.message && !b.message) return 0;
         if (!a.message) return 1;
@@ -125,7 +124,7 @@ const ChatSidebar: React.FC<Props> = ({ data, onSelectUser }) => {
 
     loadChats();
 
-    // Step 3: Listen for new messages
+    //Listen for new messages
     const channel = supabase
       .channel(`chat-updates-${currentUserId}`)
       .on(
@@ -137,7 +136,7 @@ const ChatSidebar: React.FC<Props> = ({ data, onSelectUser }) => {
           filter: `sender_id=eq.${currentUserId}`,
         },
         (payload) => {
-          const newMessage = payload.new as ChatMessage; // Fix: Type payload.new as ChatMessage
+          const newMessage = payload.new as ChatMessage; 
           handleNewMessage(newMessage);
         }
       )
@@ -150,13 +149,13 @@ const ChatSidebar: React.FC<Props> = ({ data, onSelectUser }) => {
           filter: `receiver_id=eq.${currentUserId}`,
         },
         (payload) => {
-          const newMessage = payload.new as ChatMessage; // Fix: Type payload.new as ChatMessage
+          const newMessage = payload.new as ChatMessage; 
           handleNewMessage(newMessage);
         }
       )
       .subscribe();
 
-    const handleNewMessage = (message: ChatMessage) => { // Fix: Type message as ChatMessage
+    const handleNewMessage = (message: ChatMessage) => { 
       const otherUserId = message.sender_id === currentUserId ? message.receiver_id : message.sender_id;
       const userExists = data.find(user => user.uid === otherUserId);
 
@@ -196,9 +195,8 @@ const ChatSidebar: React.FC<Props> = ({ data, onSelectUser }) => {
     };
   }, [currentUserId, data, supabase]);
 
-  // Step 4: Add a new user
+  //Add a new user
   const addNewUser = async () => {
-    // Validate: Name is required, and at least phone or email must be provided
     if (!newUserName) {
       alert('Please provide a name for the contact.');
       return;
@@ -209,7 +207,7 @@ const ChatSidebar: React.FC<Props> = ({ data, onSelectUser }) => {
       return;
     }
 
-    // Step 4.1: Check if the user is registered and has logged in using the RPC function
+    //Check if the user is registered and has logged in using the RPC function
     const { data: isValidUser, error: checkError } = await supabase
       .rpc('check_user_registration', { p_email: newUserEmail || '', p_phone: newUserPhone || '' });
 
@@ -229,7 +227,7 @@ const ChatSidebar: React.FC<Props> = ({ data, onSelectUser }) => {
       return;
     }
 
-    // Step 4.2: Check if the user already exists in the users table
+    //Check if the user already exists in the users table
     const { data: existingUsers, error: fetchError } = await supabase
       .from('users')
       .select('*')
@@ -245,7 +243,6 @@ const ChatSidebar: React.FC<Props> = ({ data, onSelectUser }) => {
 
     if (existingUsers && existingUsers.length > 0) {
       const existingUser = existingUsers[0];
-      // Update the existing user with new details
       const updatedUser = {
         name: newUserName,
         phone: newUserPhone || existingUser.phone,
@@ -273,8 +270,9 @@ const ChatSidebar: React.FC<Props> = ({ data, onSelectUser }) => {
         email: updatedUser.email,
         tag: updatedUser.tag,
       };
-    } else {
-      // Add the new user to the users table
+    } 
+    else
+     {
       const newUser = {
         name: newUserName,
         phone: newUserPhone || null,
@@ -305,7 +303,7 @@ const ChatSidebar: React.FC<Props> = ({ data, onSelectUser }) => {
       };
     }
 
-    // Add the user to the chat list with a virtual timestamp
+    //Add the user to the chat list with a virtual timestamp
     const currentTime = new Date().toISOString();
     const virtualMessage: Message = {
       id: `virtual-${selectedUser.uid}`,
@@ -335,7 +333,7 @@ const ChatSidebar: React.FC<Props> = ({ data, onSelectUser }) => {
       return updatedList;
     });
 
-    // Close the dialog and open the chat
+    //Close the dialog and open the chat
     setShowDialog(false);
     setNewUserName('');
     setNewUserPhone('');
@@ -362,20 +360,24 @@ const ChatSidebar: React.FC<Props> = ({ data, onSelectUser }) => {
         )}
       </div>
 
-      {/* Button to open the dialog */}
+      {/* Button for new chat */}
       <button
         className="absolute bottom-4 right-4 bg-green-600 hover:bg-green-700 text-white p-2 rounded-full shadow-lg z-10"
         title="New Chat"
         onClick={() => setShowDialog(true)}
       >
-        <TbMessageCirclePlus size={20} />
+      <TbMessageCirclePlus size={20} />
       </button>
 
       {/* Dialog to add a new user */}
       {showDialog && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+
           <div className="bg-white rounded-lg p-4 w-80 max-h-[80vh] flex flex-col">
-            <h2 className="text-lg font-medium mb-4">Add New Contact</h2>
+            <h2 className="text-lg font-medium mb-4">
+              Add New Contact
+            </h2>
+
             <div className="pt-4">
               <input
                 type="text"
@@ -418,6 +420,7 @@ const ChatSidebar: React.FC<Props> = ({ data, onSelectUser }) => {
                 >
                   Cancel
                 </button>
+                
                 <button
                   onClick={addNewUser}
                   className="flex-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"

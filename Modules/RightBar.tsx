@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   MdSync,
-  MdShare,
   MdGroups,
   MdAlternateEmail,
   MdTune
@@ -17,9 +16,8 @@ const iconClass = "text-gray-500 hover:text-black cursor-pointer";
 
 const RightBar: React.FC = () => {
   return (
-    <div className=" w-12 bg-white flex flex-col items-center py-6 fixed right-0 top-0 border-l border-gray-300">
+    <div className=" w-12 bg-white flex flex-col items-center py-6 fixed right-0 top-0 border-l border-gray-100">
       
-      {/* Icons grouped with spacing */}
       <div className="flex flex-col items-center gap-6 pt-20 flex-1">
 
         <LuPanelRightOpen size={22} className={iconClass} />
