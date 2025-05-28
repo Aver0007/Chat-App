@@ -165,7 +165,7 @@ const ChatWindow: React.FC<Props> = ({ user, currentUser }) => {
       <div
         className="flex-1 overflow-y-auto"
         style={{
-          backgroundImage: "url('/whatsapp.jpg')",
+          backgroundImage: "url('/Whatsapp.jpg')",
           backgroundRepeat: 'repeat',
           backgroundSize: 'contain',
           backgroundPosition: 'top left',
