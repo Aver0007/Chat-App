@@ -192,7 +192,7 @@ const ChatWindow: React.FC<Props> = ({ user, currentUser }) => {
             <FaUserCircle className="w-8 h-8 text-gray-400" />
           )}
           <div className="flex flex-col">
-            <p className="font-medium text-sm">{user.name}</p>
+            <p className="font-medium text-sm">{user.name || user.email}</p>
             <p className="text-xs text-gray-500">{user.tag}</p>
           </div>
         </div>

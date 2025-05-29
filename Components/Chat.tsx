@@ -48,8 +48,8 @@ const Chat: React.FC<Props> = ({ data, lastMessage }) => {
 
       {/* Info */}
       <div className="flex flex-col justify-center ml-3 flex-grow overflow-hidden gap-[2px]">
-        <p className="font-medium text-[13px] text-black truncate">
-          {data.name}
+        <p className="font-medium text-[13px] text-black ">
+          {data.name || data.email}
         </p>
         <p className="text-[12px] text-gray-600 truncate w-full">
           {lastMessage ? lastMessage.content : ''} 
